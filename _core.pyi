@@ -3,26 +3,30 @@ from typing import Tuple
 import numpy as np
 import numpy.typing as npt
 
+UInt32Array = npt.NDArray[np.uint32]
+Float32Array = npt.NDArray[np.float32]
+
 def random(
-    instance: npt.NDArray[np.float32],
-    order: npt.NDArray[np.uint32],
+    instance: Float32Array,
+    order: UInt32Array,
     is_euclidean: bool,
-    out: npt.NDArray[np.uint32],
+    out: UInt32Array,
 ) -> float: ...
 
 def random_parallel(
-    instance: npt.NDArray[np.float32],
-    order: npt.NDArray[np.uint32],
+    instance: Float32Array,
+    order: UInt32Array,
     is_euclidean: bool,
-    out: npt.NDArray[np.uint32],
+    num_threads: int,
+    out: UInt32Array,
 ) -> None: ...
 
 def cvrp_random(
-    customerpos: npt.NDArray[np.float32],
+    customerpos: Float32Array,
     depotx: float,
     depoty: float,
-    demands: npt.NDArray[np.uint32],
+    demands: UInt32Array,
     capacity: int,
-    order: npt.NDArray[np.uint32],
+    order: UInt32Array,
     exploration: float,
-) -> Tuple[npt.NDArray[np.uint32], npt.NDArray[np.uint32]]: ...
+) -> Tuple[UInt32Array, UInt32Array]: ...

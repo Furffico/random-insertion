@@ -3,7 +3,15 @@ try:
 except:
     import _core
 import numpy as np
+import numpy.typing as npt
+from typing import Union, Tuple, Optional
 import torch
+
+UInt32Array = npt.NDArray[np.uint32]
+Float32Array = npt.NDArray[np.float32]
+IntegerArray = Union[npt.NDArray[Union[np.int_, np.uint]], torch.Tensor]
+FloatPointArray = Union[
+    npt.NDArray[Union[np.float16, np.float32, np.float64]], torch.Tensor]
 
 
 def _to_numpy(arr):
@@ -13,50 +21,85 @@ def _to_numpy(arr):
         return arr
 
 
-def random_insertion(cities, order=None):
-    assert len(cities.shape) == 2 and cities.shape[1] == 2
-    citycount = cities.shape[0]
+def _tsp_get_parameters(
+    cities: FloatPointArray,
+    order: Optional[IntegerArray] = None,
+    batched=False,
+    euclidean=True
+) -> Tuple[Tuple[Float32Array, UInt32Array, bool], UInt32Array]:
+    if batched:
+        assert len(cities.shape) == 3
+        batch_size, citycount, n = cities.shape
+        out = np.zeros((batch_size, citycount), dtype=np.uint32)
+    else:
+        assert len(cities.shape) == 2
+        citycount, n = cities.shape
+        out = np.zeros(citycount, dtype=np.uint32)
+
+    assert (n == 2) if euclidean else (n == citycount)
+
     if order is None:
         order = np.arange(citycount, dtype=np.uint32)
     else:
-        assert len(order.shape) == 1 and order.shape[0] == cities.shape[0]
+        if batched and len(order.shape) == 2:
+            assert tuple(order.shape) == (batch_size, citycount)
+        else:
+            assert len(order.shape) == 1 and order.shape[0] == citycount
 
-    order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
-    cities = np.ascontiguousarray(_to_numpy(cities), dtype=np.float32)
-    out = np.zeros_like(order)
-    cost = _core.random(cities, order, True, out)
-    assert cost > 0
+    _order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
+    _cities = np.ascontiguousarray(_to_numpy(cities), dtype=np.float32)
+    return (_cities, _order, euclidean), out
 
+
+def tsp_random_insertion(
+    cities: FloatPointArray,
+    order: Optional[IntegerArray] = None
+) -> Tuple[UInt32Array, float]:
+    args, out = _tsp_get_parameters(cities, order)
+    cost = _core.random(*args, out)
+    assert cost >= 0
     return out, cost
 
 
-def random_insertion_parallel(cities, order=None):
-    order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
-    cities = np.ascontiguousarray(_to_numpy(cities), dtype=np.float32)
-    batch_size, city_count, _ = cities.shape
-    out = np.zeros((batch_size, city_count), dtype=np.uint32)
-    _core.random_parallel(cities, order, True, out)
+def tsp_random_insertion_parallel(
+    cities: FloatPointArray,
+    order: Optional[IntegerArray] = None,
+    threads: int = 0
+) -> UInt32Array:
+    args, out = _tsp_get_parameters(cities, order, batched=True)
+    _core.random_parallel(*args, threads, out)
     return out
 
 
-def random_insertion_non_euclidean(distmap, order=None):
-    assert len(distmap.shape) == 2 and distmap.shape[1] == distmap.shape[0]
-    citycount = distmap.shape[0]
-    if order is None:
-        order = np.arange(citycount, dtype=np.uint32)
-    else:
-        assert len(order.shape) == 1 and order.shape[0] == citycount
-
-    order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
-    distmap = np.ascontiguousarray(_to_numpy(distmap), dtype=np.float32)
-    out = np.zeros_like(order)
-    cost = _core.random(distmap, order, False, out)
-    assert cost > 0
-
+def atsp_random_insertion(
+    distmap: FloatPointArray,
+    order: Optional[IntegerArray] = None
+) -> Tuple[UInt32Array, float]:
+    args, out = _tsp_get_parameters(distmap, order, euclidean=False)
+    cost = _core.random(*args, out)
+    assert cost >= 0
     return out, cost
 
 
-def cvrp_random_insertion(customerpos, depotpos, demands, capacity, order=None, exploration=1.0):
+def atsp_random_insertion_parallel(
+    distmap: FloatPointArray,
+    order: Optional[IntegerArray] = None,
+    threads: int = 0
+) -> UInt32Array:
+    args, out = _tsp_get_parameters(
+        distmap, order, batched=True, euclidean=False)
+    _core.random_parallel(*args, threads, out)
+    return out
+
+
+def cvrp_random_insertion(
+    customerpos: FloatPointArray,
+    depotpos: FloatPointArray,
+    demands: IntegerArray,
+    capacity: int,
+    order: Optional[IntegerArray] = None,
+    exploration: float = 1.0
+) -> list[UInt32Array]:
     assert len(customerpos.shape) == 2 and customerpos.shape[1] == 2
     assert isinstance(capacity, int)
 
@@ -77,18 +120,24 @@ def cvrp_random_insertion(customerpos, depotpos, demands, capacity, order=None, 
     else:
         assert len(order.shape) == 1 and order.shape[0] == ccount
 
-    order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
-    customerpos = np.ascontiguousarray(
+    _order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
+    _customerpos = np.ascontiguousarray(
         _to_numpy(customerpos), dtype=np.float32)
-    demands = np.ascontiguousarray(_to_numpy(demands), dtype=np.uint32)
+    _demands = np.ascontiguousarray(_to_numpy(demands), dtype=np.uint32)
 
     outorder, sep = _core.cvrp_random(
-        customerpos, depotx, depoty, demands, capacity, order, exploration)
+        _customerpos, depotx, depoty, _demands, capacity, _order, exploration)
     routes = [outorder[i:j] for i, j in zip(sep, sep[1:])]
     return routes
 
 
-def cvrplib_random_insertion(positions, demands, capacity, order=None, exploration=1.0):
+def cvrplib_random_insertion(
+    positions: FloatPointArray,
+    demands: IntegerArray,
+    capacity: int,
+    order: Optional[IntegerArray] = None,
+    exploration=1.0
+) -> list[UInt32Array]:
     customerpos = positions[1:]
     depotpos = positions[0]
     demands = demands[1:]
