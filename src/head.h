@@ -1,4 +1,4 @@
-
+#ifndef __RANDOM_INSERTION_CORE_HEAD
 #include <vector>
 #include <math.h>
 
@@ -108,3 +108,6 @@ struct Route{
 	unsigned demand;
 	float length;
 };
+
+#define __RANDOM_INSERTION_CORE_HEAD
+#endif
