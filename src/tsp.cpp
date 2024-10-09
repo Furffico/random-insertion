@@ -1,6 +1,6 @@
 #include "head.h"
 
-void Insertion::initState(unsigned *order)
+void TSPInsertion::initState(unsigned *order)
 {
     unsigned cc = tspi->citycount;
     Node node;
@@ -16,7 +16,7 @@ void Insertion::initState(unsigned *order)
 }
 
 
-Node *Insertion::getVacantNode()
+Node *TSPInsertion::getVacantNode()
 {
     Node *result = vacant;
     if (vacant != nullptr)
@@ -27,7 +27,7 @@ Node *Insertion::getVacantNode()
     return result;
 }
 
-void Insertion::randomInsertion(unsigned *order)
+void TSPInsertion::randomInsertion(unsigned *order)
 {
     initState(order);
     unsigned cc = tspi->citycount;
@@ -77,7 +77,7 @@ void Insertion::randomInsertion(unsigned *order)
     }
 }
 
-float Insertion::getResult(unsigned* output){
+float TSPInsertion::getResult(unsigned* output){
     if(output==nullptr || route == nullptr)
         return -1.0;
 
@@ -93,7 +93,7 @@ float Insertion::getResult(unsigned* output){
     return distance;
 }
 
-Insertion::~Insertion(){
+TSPInsertion::~TSPInsertion(){
     if(route!=nullptr){
         Node* last, *node = route->next;
         route->next = nullptr;

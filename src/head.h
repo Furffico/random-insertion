@@ -55,12 +55,12 @@ private:
     float *distmat;
 };
 
-class Insertion
+class TSPInsertion
 {
 public:
-    Insertion(TSPinstance *tspinstance): tspi(tspinstance){};
+    TSPInsertion(TSPinstance *tspinstance): tspi(tspinstance){};
     void randomInsertion(unsigned *order);
-    ~Insertion();
+    ~TSPInsertion();
     float getResult(unsigned* output);
 
 private:

@@ -1,8 +1,7 @@
-from typing import Union
 try:
-    from . import insertion
+    from . import _core
 except:
-    import insertion
+    import _core
 import numpy as np
 import torch
 
@@ -21,14 +20,24 @@ def random_insertion(cities, order=None):
         order = np.arange(citycount, dtype=np.uint32)
     else:
         assert len(order.shape) == 1 and order.shape[0] == cities.shape[0]
-    
+
     order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
     cities = np.ascontiguousarray(_to_numpy(cities), dtype=np.float32)
     out = np.zeros_like(order)
-    cost = insertion.random(cities, order, True, out)
+    cost = _core.random(cities, order, True, out)
     assert cost > 0
 
     return out, cost
+
+
+def random_insertion_parallel(cities, order=None):
+    order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
+    cities = np.ascontiguousarray(_to_numpy(cities), dtype=np.float32)
+    batch_size, city_count, _ = cities.shape
+    out = np.zeros((batch_size, city_count), dtype=np.uint32)
+    _core.random_parallel(cities, order, True, out)
+    return out
+
 
 def random_insertion_non_euclidean(distmap, order=None):
     assert len(distmap.shape) == 2 and distmap.shape[1] == distmap.shape[0]
@@ -41,20 +50,21 @@ def random_insertion_non_euclidean(distmap, order=None):
     order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
     distmap = np.ascontiguousarray(_to_numpy(distmap), dtype=np.float32)
     out = np.zeros_like(order)
-    cost = insertion.random(distmap, order, False, out)
+    cost = _core.random(distmap, order, False, out)
     assert cost > 0
 
     return out, cost
 
-def cvrp_random_insertion(customerpos, depotpos, demands, capacity, order = None, exploration = 1.0):
+
+def cvrp_random_insertion(customerpos, depotpos, demands, capacity, order=None, exploration=1.0):
     assert len(customerpos.shape) == 2 and customerpos.shape[1] == 2
     assert isinstance(capacity, int)
 
     if isinstance(depotpos, tuple):
-        assert len(depotpos)==2
+        assert len(depotpos) == 2
         depotx, depoty = depotpos
     else:
-        assert len(depotpos.shape)==1 and depotpos.shape[0]==2
+        assert len(depotpos.shape) == 1 and depotpos.shape[0] == 2
         depotx, depoty = depotpos[0].item(), depotpos[1].item()
     depotx, depoty = float(depotx), float(depoty)
 
@@ -68,29 +78,24 @@ def cvrp_random_insertion(customerpos, depotpos, demands, capacity, order = None
         assert len(order.shape) == 1 and order.shape[0] == ccount
 
     order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
-    customerpos = np.ascontiguousarray(_to_numpy(customerpos), dtype=np.float32)
+    customerpos = np.ascontiguousarray(
+        _to_numpy(customerpos), dtype=np.float32)
     demands = np.ascontiguousarray(_to_numpy(demands), dtype=np.uint32)
-    
-    outorder, sep = insertion.cvrp_random(customerpos, depotx, depoty, demands, capacity, order, exploration)
-    routes = [outorder[i:j] for i,j in zip(sep, sep[1:])]
+
+    outorder, sep = _core.cvrp_random(
+        customerpos, depotx, depoty, demands, capacity, order, exploration)
+    routes = [outorder[i:j] for i, j in zip(sep, sep[1:])]
     return routes
 
-def cvrplib_random_insertion(positions, demands, capacity, order = None, exploration = 1.0):
+
+def cvrplib_random_insertion(positions, demands, capacity, order=None, exploration=1.0):
     customerpos = positions[1:]
     depotpos = positions[0]
     demands = demands[1:]
     if order is not None:
-        order = np.delete(order, order==0) - 1
-    routes = cvrp_random_insertion(customerpos, depotpos, demands, capacity, order, exploration)
+        order = np.delete(order, order == 0) - 1
+    routes = cvrp_random_insertion(
+        customerpos, depotpos, demands, capacity, order, exploration)
     for r in routes:
         r += 1
     return routes
-
-
-if __name__=="__main__":
-    n = 1000
-    pos = np.random.rand(n, 2)
-    depotpos = pos.mean(axis=0)
-    demands = np.random.randint(1, 7, size = n)
-    capacity = 300
-    print(*cvrp_random_insertion(pos, depotpos, demands, capacity), sep='\n')

@@ -10,6 +10,13 @@ def random(
     out: npt.NDArray[np.uint32],
 ) -> float: ...
 
+def random_parallel(
+    instance: npt.NDArray[np.float32],
+    order: npt.NDArray[np.uint32],
+    is_euclidean: bool,
+    out: npt.NDArray[np.uint32],
+) -> None: ...
+
 def cvrp_random(
     customerpos: npt.NDArray[np.float32],
     depotx: float,
