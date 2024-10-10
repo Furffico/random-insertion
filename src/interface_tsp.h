@@ -1,3 +1,6 @@
+#ifndef __RANDOM_INSERTION_INTERFACE_TSP
+#define __RANDOM_INSERTION_INTERFACE_TSP
+
 #include "head.h"
 #include <Python.h>
 #include "numpy/arrayobject.h"
@@ -10,7 +13,7 @@ float get_tsp_insertion_result(TSPinstance *tspi, unsigned *order, unsigned *out
     return distance;
 }
 
-PyObject *
+static PyObject *
 tsp_insertion_random(PyObject *self, PyObject *args)
 {
     /* ----------------- read cities' position from PyObject ----------------- */
@@ -61,7 +64,7 @@ tsp_insertion_random(PyObject *self, PyObject *args)
     return pyresult;
 }
 
-PyObject*
+static PyObject*
 tsp_insertion_random_parallel(PyObject *self, PyObject *args)
 {
     /* ----------------- read cities' position from PyObject ----------------- */
@@ -139,3 +142,5 @@ tsp_insertion_random_parallel(PyObject *self, PyObject *args)
     delete []tspi;
     return Py_None;
 }
+
+#endif

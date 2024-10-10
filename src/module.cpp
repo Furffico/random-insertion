@@ -1,5 +1,15 @@
+#define PY_SSIZE_T_CLEAN
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+
+#include <Python.h>
+
+static PyObject* tsp_insertion_random(PyObject *self, PyObject *args);
+static PyObject* tsp_insertion_random_parallel(PyObject *self, PyObject *args);
+static PyObject* cvrp_insertion_random(PyObject *self, PyObject *args);
+
 // #define SKIPCHECK
-#include "interface.h"
+#include "interface_tsp.h"
+#include "interface_cvrp.h"
 
 static PyMethodDef InsertionMethods[] = {
     {"random", tsp_insertion_random, METH_VARARGS, "Execute random insertion on TSP."},
@@ -17,10 +27,8 @@ static struct PyModuleDef insertionmodule = {
 PyMODINIT_FUNC
 PyInit__core(void)
 {
-    PyObject *m;
-    m = PyModule_Create(&insertionmodule);
-    if (m == NULL)
-        return NULL;
+    PyObject *m = PyModule_Create(&insertionmodule);
+    if (m == NULL) return NULL;
     import_array();
 
     return m;

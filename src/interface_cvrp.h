@@ -1,8 +1,11 @@
+#ifndef __RANDOM_INSERTION_INTERFACE_CVRP
+#define __RANDOM_INSERTION_INTERFACE_CVRP
+
 #include "head.h"
 #include <Python.h>
 #include "numpy/arrayobject.h"
 
-PyObject*
+static PyObject*
 cvrp_insertion_random(PyObject *self, PyObject *args)
 {
     /* ----------------- read cities' position from PyObject ----------------- */
@@ -45,3 +48,4 @@ cvrp_insertion_random(PyObject *self, PyObject *args)
 
     return returntuple;
 }
+#endif
