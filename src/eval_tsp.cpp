@@ -111,5 +111,7 @@ TSPInsertion::~TSPInsertion(){
         }
         vacant = nullptr;
     }
+    if(tspi!=nullptr)
+        delete tspi;
 }
 
