@@ -30,3 +30,11 @@ def cvrp_random(
     order: UInt32Array,
     exploration: float,
 ) -> Tuple[UInt32Array, UInt32Array]: ...
+
+def shpp_random_parallel(
+    instance: Float32Array,
+    order: UInt32Array,
+    is_euclidean: bool,
+    num_threads: int,
+    out: UInt32Array,
+) -> None: ...

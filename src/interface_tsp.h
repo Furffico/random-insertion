@@ -2,8 +2,7 @@
 #define __RANDOM_INSERTION_INTERFACE_TSP
 
 #include "interface_common.h"
-#include <vector>
-#include <thread>
+#include "tasklist.h"
 
 float get_tsp_insertion_result(TSPinstance *tspi){
     TSPInsertion ins = TSPInsertion(tspi);
@@ -29,7 +28,7 @@ TaskList<Insertion> read_tsp_instance(PyObject *pycities, PyObject *pyorder, boo
     npy_intp *shape = PyArray_SHAPE(pyarrcities);
     unsigned citycount, batchsize=1;
     bool shared_order=false;
-    
+
     if(batched){
         shared_order = PyArray_NDIM(pyarrorder) == 1;
         batchsize = (unsigned)shape[0], citycount = (unsigned)shape[1];

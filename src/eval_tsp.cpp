@@ -3,16 +3,12 @@
 void TSPInsertion::initState(unsigned *order)
 {
     unsigned cc = tspi->citycount;
-    Node node;
-    Node *lastnode = &node;
+    Node dummynode;
+    Node *lastnode = &dummynode;
     for (unsigned i = 0; i < cc; i++)
-    {
-        Node *thisnode = new Node;
-        thisnode->value = order[i];
-        lastnode = (lastnode->next = thisnode);
-    }
-    vacant = node.next;
-    node.next = nullptr;
+        lastnode = (lastnode->next = new Node(order[i]));
+    vacant = dummynode.next;
+    dummynode.next = nullptr;
 }
 
 
@@ -46,7 +42,6 @@ void TSPInsertion::randomInsertion(unsigned *order)
         // get a city from vacant
         Node *curr = getVacantNode();
         unsigned city = curr->value;
-        // unsigned routelen = i - 1;
 
         // get target list and distances
         // and get insert position with minimum cost
@@ -106,7 +101,7 @@ TSPInsertion::~TSPInsertion(){
     if(vacant!=nullptr){
         Node* last, *node = vacant;
         while(node!=nullptr){
-            node = (last=node)->next;
+            node = (last = node)->next;
             delete last;
         }
         vacant = nullptr;

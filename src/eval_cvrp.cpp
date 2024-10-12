@@ -1,5 +1,5 @@
 #include "head.h"
-// #include<iostream>
+// TODO: refactor CVRP insertion
 
 Route* newroute(unsigned depotid){
 	Node* head = new Node;
@@ -17,7 +17,6 @@ Route* newroute(unsigned depotid){
 
 CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 1.0){
 	// initialize ==============================
-	// std::printf("initialization\n");
 	unsigned cc = cvrpi->citycount;
 	Node* vacant = nullptr;
 	std::vector<Route*> routes;	
@@ -35,9 +34,8 @@ CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 
 		node.next = nullptr;
 	}
 	unsigned depot = cc;
-	// vacant->printall(100);
 	// start loop ==================================
-	// std::printf("looping\n");
+	
 	for(unsigned i=0; i<cc; ++i){
 		// get a city from vacant
 		Node *curr;
@@ -51,7 +49,7 @@ CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 
 		unsigned currdemand = cvrpi->demand[currcity];
 		Route* minroute = nullptr;
 		Node* minnode = nullptr;
-		// std::printf("find insert position for city %i\n", currcity);
+		
 		// get insert posiion with minimum cost
 		for(std::vector<Route*>::iterator j = routes.begin(); j<routes.end(); ++j){
 			Route* route = *j;
@@ -69,7 +67,7 @@ CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 
 				thisnode = nextnode, thisdist = nextdist;
 			}while(nextnode!=headnode);
 		}
-		// std::printf("update status for city %i\n", currcity);
+
 		// update state
 		Route* route = nullptr;
 		Node* pre = nullptr;
@@ -89,7 +87,7 @@ CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 
 		route->demand += currdemand;
 		route->length += mincost;
 	}
-	// std::printf("outputing\n");
+	
 	unsigned* norder = new unsigned[cc];
 	unsigned len = routes.size()+1;
 	unsigned* routesep = new unsigned[len];
@@ -101,18 +99,16 @@ CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 
 		Node* headnode = route->head;
 		Node* currnode = headnode->next;
 		*(routesepptr++) = accu;
-		// std::printf("route: ");
+		
 		while(currnode!=headnode){
-			// printf("%i ", currnode->value);
 			norder[accu++] = currnode->value;
 			currnode = currnode->next;
 		}
-		// std::printf(" cost: %f demand: %i\n", route->length, route->demand);
+
 		// clean up
 		Node *next = headnode->next;
 		headnode->next = nullptr;
-		delete next;
-		delete route;
+		delete next, route;
 	}
 	*routesepptr = accu;
 

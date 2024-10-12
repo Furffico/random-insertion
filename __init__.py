@@ -92,6 +92,24 @@ def atsp_random_insertion_parallel(
     return out
 
 
+def shpp_random_insertion_parallel(
+    cities: FloatPointArray,
+    order: Optional[IntegerArray] = None,
+    threads: int = 0
+) -> UInt32Array:
+    args, out = _tsp_get_parameters(cities, order, batched=True)
+    _core.shpp_random_parallel(*args, threads, out)
+    return out
+
+def ashpp_random_insertion_parallel(
+    cities: FloatPointArray,
+    order: Optional[IntegerArray] = None,
+    threads: int = 0
+) -> UInt32Array:
+    args, out = _tsp_get_parameters(cities, order, batched=True, euclidean=False)
+    _core.shpp_random_parallel(*args, threads, out)
+    return out
+
 def cvrp_random_insertion(
     customerpos: FloatPointArray,
     depotpos: FloatPointArray,
