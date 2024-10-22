@@ -3,3 +3,6 @@ __pycache__
 *.o
 .vscode
 *.so
+venv
+dist
+*.egg-info

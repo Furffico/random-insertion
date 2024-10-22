@@ -1,0 +1,14 @@
+
+[project]
+name = "random_insertion"
+version = "0.2.0dev"
+dependencies = ["numpy >= 1.23"]
+
+[build-system]
+requires = ["setuptools >= 75.0", "numpy >= 1.23"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools]
+include-package-data = false
+packages = ["random_insertion"]

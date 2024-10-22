@@ -1,0 +1,7 @@
+include random_insertion/src/*.h
+include random_insertion/src/*.cpp
+include random_insertion/makefile
+include random_insertion/__init__.py
+include random_insertion/_core.pyi
+global-exclude *.d
+global-exclude *.o
