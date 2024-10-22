@@ -5,20 +5,11 @@ except:
 import numpy as np
 import numpy.typing as npt
 from typing import Union, Tuple, Optional
-import torch
 
 UInt32Array = npt.NDArray[np.uint32]
 Float32Array = npt.NDArray[np.float32]
-IntegerArray = Union[npt.NDArray[Union[np.int_, np.uint]], torch.Tensor]
-FloatPointArray = Union[
-    npt.NDArray[Union[np.float16, np.float32, np.float64]], torch.Tensor]
-
-
-def _to_numpy(arr):
-    if isinstance(arr, torch.Tensor):
-        return arr.detach().cpu().numpy()
-    else:
-        return arr
+IntegerArray = npt.NDArray[Union[np.int_, np.uint]]
+FloatPointArray = npt.NDArray[Union[np.float16, np.float32, np.float64]]
 
 
 def _tsp_get_parameters(
@@ -46,8 +37,8 @@ def _tsp_get_parameters(
         else:
             assert len(order.shape) == 1 and order.shape[0] == citycount
 
-    _order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
-    _cities = np.ascontiguousarray(_to_numpy(cities), dtype=np.float32)
+    _order = np.ascontiguousarray(order, dtype=np.uint32)
+    _cities = np.ascontiguousarray(cities, dtype=np.float32)
     return (_cities, _order, euclidean), out
 
 
@@ -138,10 +129,9 @@ def cvrp_random_insertion(
     else:
         assert len(order.shape) == 1 and order.shape[0] == ccount
 
-    _order = np.ascontiguousarray(_to_numpy(order), dtype=np.uint32)
-    _customerpos = np.ascontiguousarray(
-        _to_numpy(customerpos), dtype=np.float32)
-    _demands = np.ascontiguousarray(_to_numpy(demands), dtype=np.uint32)
+    _order = np.ascontiguousarray(order, dtype=np.uint32)
+    _customerpos = np.ascontiguousarray(customerpos, dtype=np.float32)
+    _demands = np.ascontiguousarray(demands, dtype=np.uint32)
 
     outorder, sep = _core.cvrp_random(
         _customerpos, depotx, depoty, _demands, capacity, _order, exploration)
