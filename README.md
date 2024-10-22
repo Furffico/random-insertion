@@ -1,12 +1,15 @@
 # random-insertion
 <a href="https://pypi.org/project/random-insertion"><img alt="PyPI" src="https://img.shields.io/pypi/v/random-insertion?logo=pypi"></a>
+<a href="https://pypi.org/project/random-insertion"><img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/random-insertion"></a>
+<a href="https://github.com/Furffico/random-insertion"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Furffico/random-insertion"></a>
 
 `random-insertion` is a Python library for performing fast random insertion on TSP (Travelling Salesman Problem) and SHPP (Shortest Hamiltonian Path Problem) instances, originally a part of the [GLOP](https://github.com/henry-yeh/GLOP/tree/e2927170a8e6fa73563d1741690825dfae4f65f2/utils/insertion) codebase.
 
 ## Installation
-### Dependencies
+### Supported environments
 - python >= 3.7
 - numpy >= 1.21
+- Linux and Windows
 
 ### Install from PyPI
 ```bash
@@ -35,7 +38,8 @@ for route in routes:
     print(*route)
 ```
 
-Despite the name, the program itself is deterministic in nature. Given the same instances and insertion orders, the program will output identical routes. 
+Despite the name, the program itself is deterministic in nature.
+Given the same instances and insertion orders, the program will output identical routes.
 If you would like to add stochasticity to the outputs, please provide shuffled insertion orders like this:
 ```python
 ...
@@ -62,4 +66,12 @@ route, cost = atsp_random_insertion(distances, order)
 # Not tested:
 route = cvrp_random_insertion(coords, depot_pos, demands, capacity, order, exploration = 1.0)
 route = cvrplib_random_insertion(coords, demands, capacity, order, exploration = 1.0)
+```
+
+### Running tests
+```bash
+$ git clone https://github.com/Furffico/random-insertion.git
+$ cd random-insertion
+$ pip install -e . pytest
+$ pytest                  # run tests
 ```
