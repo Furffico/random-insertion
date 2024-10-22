@@ -1,8 +1,10 @@
 
 [project]
 name = "random-insertion"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = ["numpy>=1.21"]
+description = "A Python library for performing fast random insertion on TSP (Travelling Salesman Problem) and SHPP (Shortest Hamiltonian Path Problem) instances"
+readme = {file = "README.txt", content-type = "text/markdown"}
 
 [build-system]
 requires = ["setuptools>=50.0", "numpy>=1.21"]
