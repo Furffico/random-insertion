@@ -36,7 +36,7 @@ TaskList<Insertion> read_tsp_instance(PyObject *pycities, PyObject *pyorder, boo
         #ifndef SKIPCHECK
         if ((unsigned)shape[2]!=(isEuclidean?2:citycount)
             || (shared_order && (unsigned)PyArray_SHAPE(pyarrorder)[0] != citycount) 
-            || ((!shared_order && ((unsigned)PyArray_SHAPE(pyarrorder)[0] != batchsize)) || (unsigned)PyArray_SHAPE(pyarrorder)[1] != citycount)
+            || (!shared_order && ((unsigned)PyArray_SHAPE(pyarrorder)[0] != batchsize || (unsigned)PyArray_SHAPE(pyarrorder)[1] != citycount))
             || (unsigned)PyArray_SHAPE(pyarrout)[0] != batchsize || (unsigned)PyArray_SHAPE(pyarrout)[1] != citycount)
             return instances;
         #endif
