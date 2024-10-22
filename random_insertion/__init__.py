@@ -4,7 +4,7 @@ except:
     import _core
 import numpy as np
 import numpy.typing as npt
-from typing import Union, Tuple, Optional
+from typing import Union, Tuple, Optional, List
 
 UInt32Array = npt.NDArray[np.uint32]
 Float32Array = npt.NDArray[np.float32]
@@ -108,7 +108,7 @@ def cvrp_random_insertion(
     capacity: int,
     order: Optional[IntegerArray] = None,
     exploration: float = 1.0
-) -> list[UInt32Array]:
+) -> List[UInt32Array]:
     assert len(customerpos.shape) == 2 and customerpos.shape[1] == 2
     assert isinstance(capacity, int)
 
@@ -145,7 +145,7 @@ def cvrplib_random_insertion(
     capacity: int,
     order: Optional[IntegerArray] = None,
     exploration=1.0
-) -> list[UInt32Array]:
+) -> List[UInt32Array]:
     customerpos = positions[1:]
     depotpos = positions[0]
     demands = demands[1:]

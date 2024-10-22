@@ -52,7 +52,7 @@ def test_tsp_insertion_line(scale=100):
 
 def test_tsp_insertion_triangle(scale=100):
     pos = np.arange(0, scale, dtype=np.float32)
-    pos = np.concat((pos, np.zeros_like(pos)))
+    pos = np.concatenate((pos, np.zeros_like(pos)))
     cities = np.stack([pos, pos[::-1]]).T
     route, cost = insertion.tsp_random_insertion(cities)
     assert len(route) == scale*2
