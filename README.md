@@ -1,4 +1,4 @@
-# Random-Insertion
+# random-insertion
 
 A Python library for performing fast random insertion on TSP (Travelling Salesman Problem) and SHPP (Shortest Hamiltonian Path Problem) instances, originally a part of the [GLOP](https://github.com/henry-yeh/GLOP/tree/e2927170a8e6fa73563d1741690825dfae4f65f2/utils/insertion) codebase.
 
