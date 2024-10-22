@@ -8,7 +8,7 @@
 
 inline float calc_distance(float* a, float* b){
 	float d1 = *a - *b, d2 = *(a + 1) - *(b + 1);
-	return sqrtf32(d1*d1+d2*d2);
+	return sqrt(d1*d1+d2*d2);
 }
 
 class Node
@@ -39,6 +39,7 @@ public:
     virtual float getdist(unsigned cityA, unsigned cityB){
         return 0.0f;
     };
+    virtual ~TSPinstance(){};
 private:
     unsigned* order=nullptr;
     unsigned* out=nullptr;
@@ -51,9 +52,9 @@ public:
     float getdist(unsigned a, unsigned b){
         float *p1 = citypos + (a << 1), *p2 = citypos + (b << 1);
         float d1 = *p1 - *p2, d2 = *(p1 + 1) - *(p2 + 1);
-        return sqrtf32(d1 * d1 + d2 * d2);
+        return sqrt(d1 * d1 + d2 * d2);
     };
-    ~TSPinstanceEuclidean(){ citypos = nullptr; };
+    virtual ~TSPinstanceEuclidean(){ citypos = nullptr; };
 private:
     float *citypos;
 };
@@ -65,7 +66,7 @@ public:
     float getdist(unsigned a, unsigned b){
         return distmat[citycount * a + b];
     };
-    ~TSPinstanceNonEuclidean(){ distmat = nullptr; };
+    virtual ~TSPinstanceNonEuclidean(){ distmat = nullptr; };
 private:
     float *distmat;
 };
@@ -74,7 +75,7 @@ class TSPInsertion: public InsertionSolver
 {
 public:
     TSPInsertion(TSPinstance *tspinstance): tspi(tspinstance){};
-    ~TSPInsertion();
+    virtual ~TSPInsertion();
     float solve(){
         randomInsertion(tspi->order);
         float distance = getResult(tspi->out);
@@ -95,7 +96,7 @@ class SHPPInsertion: public InsertionSolver
 {
 public:
     SHPPInsertion(TSPinstance *tspinstance): instance(tspinstance){};
-    ~SHPPInsertion();
+    virtual ~SHPPInsertion();
     float solve(){
         randomInsertion();
         float distance = getResult(instance->out);

@@ -20,7 +20,7 @@ TaskList<Insertion> read_tsp_instance(PyObject *pycities, PyObject *pyorder, boo
 
     #ifndef SKIPCHECK
     if (PyArray_NDIM(pyarrcities) != 2+batched || PyArray_TYPE(pyarrcities) != NPY_FLOAT32
-        || !(PyArray_NDIM(pyarrorder) == 1 || batched && PyArray_NDIM(pyarrorder) == 2) || PyArray_TYPE(pyarrorder) != NPY_UINT32
+        || !(PyArray_NDIM(pyarrorder) == 1 || (batched && PyArray_NDIM(pyarrorder) == 2)) || PyArray_TYPE(pyarrorder) != NPY_UINT32
         || PyArray_NDIM(pyarrout) != 1+batched  || PyArray_TYPE(pyarrout) != NPY_UINT32)
         return instances;
     #endif
@@ -35,8 +35,8 @@ TaskList<Insertion> read_tsp_instance(PyObject *pycities, PyObject *pyorder, boo
         citycount = (unsigned)shape[1];
         #ifndef SKIPCHECK
         if ((unsigned)shape[2]!=(isEuclidean?2:citycount)
-            || shared_order && (unsigned)PyArray_SHAPE(pyarrorder)[0] != citycount 
-            || !shared_order && ((unsigned)PyArray_SHAPE(pyarrorder)[0] != batchsize || (unsigned)PyArray_SHAPE(pyarrorder)[1] != citycount)
+            || (shared_order && (unsigned)PyArray_SHAPE(pyarrorder)[0] != citycount) 
+            || ((!shared_order && ((unsigned)PyArray_SHAPE(pyarrorder)[0] != batchsize)) || (unsigned)PyArray_SHAPE(pyarrorder)[1] != citycount)
             || (unsigned)PyArray_SHAPE(pyarrout)[0] != batchsize || (unsigned)PyArray_SHAPE(pyarrout)[1] != citycount)
             return instances;
         #endif

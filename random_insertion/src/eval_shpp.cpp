@@ -34,7 +34,6 @@ Node *SHPPInsertion::getVacantNode()
 void SHPPInsertion::randomInsertion()
 {
     initState();
-    unsigned cc = instance->citycount;
 
     Node *curr, *next;
     while ((curr=getVacantNode())!=nullptr){
@@ -43,7 +42,7 @@ void SHPPInsertion::randomInsertion()
         // and get insert position with minimum cost
         Node *thisnode, *nextnode=route, *minnode = route;
         float thisdist, nextdist;
-        float mindelta = INFINITY, td, nd;
+        float mindelta = INFINITY, td=0.0, nd=0.0;
 
         while((nextnode=(thisnode=nextnode)->next)!=nullptr){
             thisdist = instance->getdist(thisnode->value, city);
@@ -53,7 +52,9 @@ void SHPPInsertion::randomInsertion()
                 mindelta = delta, minnode = thisnode, td = thisdist, nd = nextdist;
         }
         // insert the selected node
-        (minnode->next = curr)->next = next = minnode->next;
+        next = minnode->next;
+        minnode->next = curr;
+        curr->next = next;
         curr->length = td, next->length = nd;
     }
 }

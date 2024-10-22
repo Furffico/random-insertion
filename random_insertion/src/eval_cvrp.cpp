@@ -108,7 +108,8 @@ CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 
 		// clean up
 		Node *next = headnode->next;
 		headnode->next = nullptr;
-		delete next, route;
+		delete next;
+		delete route;
 	}
 	*routesepptr = accu;
 

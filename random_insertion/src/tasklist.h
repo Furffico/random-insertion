@@ -32,15 +32,15 @@ public:
         
         /* ---------------------------- random insertion ---------------------------- */
         Solver** tl = this->data();
-        auto function = [tl](unsigned start, unsigned end){
+        auto function = [tl](int start, int end){
             for (int i=start; i<end; i++)
                 if(tl[i]!=nullptr)
                     tl[i]->solve();
         };
 
         std::vector<std::thread> threads;
-        for (int start=0; start<batchsize; start+=chunkSize){
-            unsigned end = std::min(start+chunkSize, batchsize);
+        for (int start=0; start<(int)batchsize; start+=chunkSize){
+            int end = std::min(start+(int)chunkSize, (int)batchsize);
             threads.emplace_back(function, start, end);
         }
         for (auto& t: threads) t.join();
