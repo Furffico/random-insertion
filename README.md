@@ -1,13 +1,14 @@
 # random-insertion
+<a href="https://pypi.org/project/random-insertion"><img alt="PyPI" src="https://img.shields.io/pypi/v/random-insertion?logo=pypi"></a>
 
-A Python library for performing fast random insertion on TSP (Travelling Salesman Problem) and SHPP (Shortest Hamiltonian Path Problem) instances, originally a part of the [GLOP](https://github.com/henry-yeh/GLOP/tree/e2927170a8e6fa73563d1741690825dfae4f65f2/utils/insertion) codebase.
+`random-insertion` is a Python library for performing fast random insertion on TSP (Travelling Salesman Problem) and SHPP (Shortest Hamiltonian Path Problem) instances, originally a part of the [GLOP](https://github.com/henry-yeh/GLOP/tree/e2927170a8e6fa73563d1741690825dfae4f65f2/utils/insertion) codebase.
 
 ## Installation
 ### Dependencies
 - python >= 3.7
 - numpy >= 1.21
 
-### Via PyPI
+### Install from PyPI
 ```bash
 $ pip install random-insertion
 ```
@@ -16,7 +17,7 @@ $ pip install random-insertion
 ```bash
 $ git clone https://github.com/Furffico/random-insertion.git
 $ cd random-insertion
-$ pip install .
+$ pip install . # add `-e` for development mode
 ```
 
 ## Usages
@@ -34,15 +35,15 @@ for route in routes:
     print(*route)
 ```
 
-Despite the name, the program itself is deterministic in nature. Given the same instances and insertion order, the program will output identical routes. If you would like to add stochasticity to the outputs, please provide shuffled insertion orders like this:
+Despite the name, the program itself is deterministic in nature. Given the same instances and insertion orders, the program will output identical routes. 
+If you would like to add stochasticity to the outputs, please provide shuffled insertion orders like this:
 ```python
 ...
 coordinates = np.random.randn(1, problem_scale, 2).repeat(num_instances, 0)
 orders = np.arange(problem_scale, dtype=np.uint32).reshape(1, -1).repeat(num_instances, 0)
 for i in range(num_instances):
     np.random.shuffle(orders[i])
-
-routes = insertion.tsp_random_insertion_parallel(coordinates, orders, threads=4)
+routes = insertion.tsp_random_insertion_parallel(coordinates, orders)
 ```
 
 ### Available methods
