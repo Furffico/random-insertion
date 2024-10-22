@@ -14,7 +14,7 @@ packages = ["random_insertion"]
 
 [tool.cibuildwheel]
 before-all = "uname -a"
-build="cp3{7,10}_x86_64"
+build="cp3{7,10,12}-*_x86_64"
 skip="cp36-*"
 
 test-requires = ["pytest"]
