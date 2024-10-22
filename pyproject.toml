@@ -1,10 +1,25 @@
 
 [project]
 name = "random-insertion"
-version = "0.2.1"
+version = "0.2.2a1"
+description = "A library for performing fast random insertion on TSP and SHPP instances"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.7"
+license = { text = "Apache-2.0 license" }
+authors = [{ name = "Furffico" }]
 dependencies = ["numpy>=1.21"]
-description = "A Python library for performing fast random insertion on TSP (Travelling Salesman Problem) and SHPP (Shortest Hamiltonian Path Problem) instances"
-readme = {file = "README.txt", content-type = "text/markdown"}
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: C++",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Repository = "https://github.com/Furffico/random-insertion"
+Issues = "https://github.com/Furffico/random-insertion/issues"
 
 [build-system]
 requires = ["setuptools>=50.0", "numpy>=1.21"]
@@ -15,8 +30,8 @@ include-package-data = false
 packages = ["random_insertion"]
 
 [tool.cibuildwheel]
-before-all = "uname -a"
-build="cp3{7,10,12}-{manylinux_x86_64,win_amd64}"
+build = "cp3*-{manylinux_x86_64,win_amd64}"
+skip = "cp36-*"
 
 test-requires = ["pytest"]
 test-command = "pytest {project}/tests"
