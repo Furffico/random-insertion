@@ -1,7 +1,7 @@
 
 [project]
-name = "random_insertion"
-version = "0.2.0dev"
+name = "random-insertion"
+version = "0.2.0"
 dependencies = ["numpy>=1.21"]
 
 [build-system]
@@ -15,7 +15,6 @@ packages = ["random_insertion"]
 [tool.cibuildwheel]
 before-all = "uname -a"
 build="cp3{7,10,12}-{manylinux_x86_64,win_amd64}"
-skip="cp36-*"
 
 test-requires = ["pytest"]
 test-command = "pytest {project}/tests"
