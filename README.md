@@ -3,7 +3,9 @@
 <a href="https://pypi.org/project/random-insertion"><img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/random-insertion"></a>
 <a href="https://github.com/Furffico/random-insertion"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Furffico/random-insertion"></a>
 
-`random-insertion` is a Python library for performing fast random insertion on TSP (Travelling Salesman Problem) and SHPP (Shortest Hamiltonian Path Problem) instances, originally a part of the [GLOP](https://github.com/henry-yeh/GLOP/tree/e2927170a8e6fa73563d1741690825dfae4f65f2/utils/insertion) codebase.
+`random-insertion` is a Python library for performing fast random insertion on TSP (Travelling Salesman Problem) and SHPP (Shortest Hamiltonian Path Problem) instances, originally a part of the [GLOP](https://github.com/henry-yeh/GLOP/tree/e2927170a8e6fa73563d1741690825dfae4f65f2/utils/insertion)* codebase.
+
+\* Ye, H., Wang, J., Liang, H., Cao, Z., Li, Y., & Li, F. (2024). GLOP: Learning Global Partition and Local Construction for Solving Large-scale Routing Problems in Real-time. *Proceedings of the AAAI Conference on Artificial Intelligence*.
 
 ## Installation
 ### Supported environments
