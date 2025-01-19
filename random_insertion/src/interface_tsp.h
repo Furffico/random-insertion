@@ -1,8 +1,10 @@
 #ifndef __RANDOM_INSERTION_INTERFACE_TSP
 #define __RANDOM_INSERTION_INTERFACE_TSP
 
-#include "interface_common.h"
+#include "head_tsp_shpp.h"
 #include "tasklist.h"
+#include <Python.h>
+#include "numpy/arrayobject.h"
 
 float get_tsp_insertion_result(TSPinstance *tspi){
     TSPInsertion ins = TSPInsertion(tspi);

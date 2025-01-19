@@ -1,9 +1,8 @@
 cxx = g++
-pythonversion = $(shell python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-pythonroot = $(shell "python$(pythonversion)" -c "import sys; print(sys.prefix)")
-numpyroot = $(shell "python$(pythonversion)" -c "import numpy,os;\
+pythoninclude = $(shell "python3" -c "print(__import__('sysconfig').get_paths()['include'])")
+numpyroot = $(shell "python3" -c "import numpy,os;\
 	print(os.path.join(os.path.dirname(numpy.__file__), '_core' if numpy.__version__>='2.0' else 'core', 'include'))")
-cxxflags = -std=c++17 -O3 -Os -fPIC -I$(pythonroot)/include/python$(pythonversion) -I$(numpyroot)
+cxxflags = -std=c++17 -O3 -Os -fPIC -I$(pythoninclude) -I$(numpyroot)
 
 sources = $(wildcard src/*.cpp)
 targets := $(patsubst %.cpp,%.o,$(sources))

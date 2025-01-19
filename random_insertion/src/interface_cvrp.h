@@ -1,7 +1,9 @@
 #ifndef __RANDOM_INSERTION_INTERFACE_CVRP
 #define __RANDOM_INSERTION_INTERFACE_CVRP
 
-#include "interface_common.h"
+#include "head_cvrp.h"
+#include <Python.h>
+#include "numpy/arrayobject.h"
 
 static PyObject*
 cvrp_insertion_random(PyObject *self, PyObject *args)

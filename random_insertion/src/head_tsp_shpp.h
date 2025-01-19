@@ -1,32 +1,7 @@
-#ifndef __RANDOM_INSERTION_CORE_HEAD
-#define __RANDOM_INSERTION_CORE_HEAD
+#ifndef __RANDOM_INSERTION_CORE_HEAD_TSP_SHPP
+#define __RANDOM_INSERTION_CORE_HEAD_TSP_SHPP
 
-#include <vector>
-#include <thread>
-#include <math.h>
-#include <type_traits>
-
-inline float calc_distance(float* a, float* b){
-	float d1 = *a - *b, d2 = *(a + 1) - *(b + 1);
-	return sqrt(d1*d1+d2*d2);
-}
-
-class Node
-{
-public:
-    Node *next = nullptr;
-    unsigned value = 0;
-    float length = 0;
-    Node(){};
-    Node(unsigned value):value(value){};
-};
-
-class InsertionSolver
-{
-public:
-    InsertionSolver(){};
-    virtual float solve(){return 0.0f;};
-};
+#include "head_common.h"
 
 class TSPinstance
 {
@@ -111,44 +86,6 @@ private:
     void initState();
     void randomInsertion();
     float getResult(unsigned* output);
-};
-
-class CVRPInstance{
-public:
-	unsigned citycount;
-	float *citypos;   // nx2
-	unsigned *demand; // n
-	float *depotpos;  // 2
-	unsigned capacity;
-	CVRPInstance(unsigned cc, float* cp, unsigned* dm, float* dp, unsigned cap):
-        citycount(cc),citypos(cp),demand(dm),depotpos(dp),capacity(cap){};
-	float getdistance(unsigned a, unsigned b){
-		float* p1 = (a<citycount)?citypos + (a<<1):depotpos;
-		float* p2 = (b<citycount)?citypos + (b<<1):depotpos;
-		return calc_distance(p1, p2);
-	}
-};
-
-struct CVRPReturn{
-	unsigned routes;
-	unsigned* order;
-	unsigned* routesep;
-};
-
-class CVRPInsertion
-{
-public:
-	CVRPInsertion(CVRPInstance* cvrpi):cvrpi(cvrpi){};
-	CVRPReturn *randomInsertion(unsigned *order, float exploration);
-
-private:
-	CVRPInstance* cvrpi;
-};
-
-struct Route{
-	Node* head;
-	unsigned demand;
-	float length;
 };
 
 #endif

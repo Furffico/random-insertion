@@ -1,7 +1,7 @@
 #ifndef __RANDOM_INSERTION_CORE_TASKLIST
 #define __RANDOM_INSERTION_CORE_TASKLIST
 
-#include "head.h"
+#include "head_common.h"
 
 template<class Solver = InsertionSolver>
 class TaskList: public std::vector<Solver*>
