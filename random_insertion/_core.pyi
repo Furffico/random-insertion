@@ -28,7 +28,8 @@ def cvrp_random(
     demands: UInt32Array,
     capacity: int,
     order: UInt32Array,
-    exploration: float,
+    outorder: UInt32Array,
+    outsep: UInt32Array,
 ) -> Tuple[UInt32Array, UInt32Array]: ...
 
 def shpp_random_parallel(

@@ -1,69 +1,47 @@
 #include "head_cvrp.h"
-// TODO: refactor CVRP insertion
+#include <Python.h>
 
-Route* newroute(unsigned depotid){
-	Node* head = new Node;
-	head->value = depotid;
-	head->length = 0.0;
-	head->next = head;
+struct Route{
+	Node head;
+	unsigned demand;
+	float length;
+};
 
-	Route* route = new Route;
-	route->head = head;
-	route->length = 0.0;
-	route->demand = 0;
 
-	return route;
-}
-
-CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 1.0){
+void CVRPInsertion::randomInsertion(unsigned *order){
 	// initialize ==============================
-	unsigned cc = cvrpi->citycount;
-	Node* vacant = nullptr;
-	std::vector<Route*> routes;	
-	unsigned capacity = cvrpi->capacity;
-	{
-		Node node;
-		Node *lastnode = &node;
-		for(unsigned i=0; i<cc; i++)
-		{
-			Node *thisnode = new Node;
-			thisnode -> value = order[i];
-			lastnode = lastnode->next = thisnode;
-		}
-		vacant = node.next;
-		node.next = nullptr;
-	}
-	unsigned depot = cc;
+	const unsigned cc = cvrpi->citycount;
+	const unsigned max_routes = cvrpi->maxroutecount;
+	const unsigned capacity = cvrpi->capacity;
+	unsigned total_routes = 0;
+	Node all_nodes[cc];
+	Route routes[max_routes];
+
 	// start loop ==================================
-	
 	for(unsigned i=0; i<cc; ++i){
-		// get a city from vacant
-		Node *curr;
-		{
-			curr = vacant;
-			vacant = vacant->next, curr->next = nullptr;
-		}
-		unsigned currcity = curr -> value;
-		float depotdist = cvrpi->getdistance(currcity, depot);
-		float mincost = 2.0 * depotdist * exploration;
+		Node *curr = all_nodes+i;
+		unsigned currcity = curr->value = order[i];
+
+		float depotdist = cvrpi->getdistance(currcity, cc);
+		float mincost = 2.0 * depotdist;
 		unsigned currdemand = cvrpi->demand[currcity];
 		Route* minroute = nullptr;
 		Node* minnode = nullptr;
 		
 		// get insert posiion with minimum cost
-		for(std::vector<Route*>::iterator j = routes.begin(); j<routes.end(); ++j){
-			Route* route = *j;
-			if(route->demand + currdemand > capacity)
+		for(unsigned j = 0; j<total_routes; ++j){
+			Route& route = routes[j];
+			if(route.demand + currdemand > capacity)
 				continue;
-			Node *headnode = route->head;
-			Node *thisnode = headnode, *nextnode = headnode->next;
-			float thisdist = mincost/2, nextdist = 0;
+			Node *headnode = &(route.head);
+			Node *thisnode = headnode, *nextnode;
+			float thisdist = depotdist, nextdist;
 			do{
 				nextnode = thisnode->next;
 				nextdist = cvrpi->getdistance(nextnode->value, currcity);
 				float delta = thisdist + nextdist - nextnode->length;
 				if(delta < mincost)
-					mincost = delta, minnode = thisnode, minroute = route;
+					mincost = delta, minnode = thisnode, minroute = &route;
 				thisnode = nextnode, thisdist = nextdist;
 			}while(nextnode!=headnode);
 		}
@@ -72,10 +50,15 @@ CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 
 		Route* route = nullptr;
 		Node* pre = nullptr;
 		if(minroute == nullptr){
-			route = newroute(depot);
-			pre = route -> head;
+			Route &new_route = routes[total_routes++];
+			pre = new_route.head.next = &new_route.head;
+			new_route.head.value = cc;
+			new_route.head.length = 0;
+			new_route.length = 0.0;
+			new_route.demand = 0;
+			route = &new_route;
 			pre->next->length = curr->length = depotdist;
-			routes.push_back(route);
+
 			mincost = depotdist * 2.0;
 		}else{
 			pre = minnode, route = minroute;
@@ -88,37 +71,22 @@ CVRPReturn* CVRPInsertion::randomInsertion(unsigned *order, float exploration = 
 		route->length += mincost;
 	}
 	
-	unsigned* norder = new unsigned[cc];
-	unsigned len = routes.size()+1;
-	unsigned* routesep = new unsigned[len];
-	unsigned* routesepptr = routesep, accu=0;
 	// get routes =========================
-	while(!routes.empty()){
-		Route* route = routes.back();
-		routes.pop_back();
-		Node* headnode = route->head;
+	unsigned routecount = 0, accu = 0;
+	for(unsigned j = 0; j<total_routes; ++j){
+		Route& route = routes[j];
+		Node* headnode = &(route.head);
 		Node* currnode = headnode->next;
-		*(routesepptr++) = accu;
+		cvrpi->outseq[routecount++] = accu;
 		
 		while(currnode!=headnode){
-			norder[accu++] = currnode->value;
+			cvrpi->outorder[accu++] = currnode->value;
 			currnode = currnode->next;
 		}
-
-		// clean up
-		Node *next = headnode->next;
-		headnode->next = nullptr;
-		delete next;
-		delete route;
 	}
-	*routesepptr = accu;
+	cvrpi->outseq[routecount++] = accu;
 
-	CVRPReturn *result = new CVRPReturn;
-	result->order = norder;
-	result->routes = len;
-	result->routesep = routesep;
-
-	return result;
+	return;
 }
 
 

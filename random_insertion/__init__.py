@@ -107,7 +107,6 @@ def cvrp_random_insertion(
     demands: IntegerArray,
     capacity: int,
     order: Optional[IntegerArray] = None,
-    exploration: float = 1.0
 ) -> List[UInt32Array]:
     assert len(customerpos.shape) == 2 and customerpos.shape[1] == 2
     assert isinstance(capacity, int)
@@ -129,13 +128,19 @@ def cvrp_random_insertion(
     else:
         assert len(order.shape) == 1 and order.shape[0] == ccount
 
+    assert demands.max() <= capacity and demands.min() > 0
+
     _order = np.ascontiguousarray(order, dtype=np.uint32)
     _customerpos = np.ascontiguousarray(customerpos, dtype=np.float32)
     _demands = np.ascontiguousarray(demands, dtype=np.uint32)
+    max_routes = min(_demands.sum().item() // capacity + 10, ccount)
 
-    outorder, sep = _core.cvrp_random(
-        _customerpos, depotx, depoty, _demands, capacity, _order, exploration)
-    routes = [outorder[i:j] for i, j in zip(sep, sep[1:])]
+    outorder = np.zeros(ccount, dtype=np.uint32)
+    outsep = np.zeros(max_routes, dtype=np.uint32)
+
+    _core.cvrp_random(_customerpos, depotx, depoty, _demands, capacity, _order, outorder, outsep)
+    routes = [outorder[i:j] for i, j in zip(outsep, outsep[1:]) if j>0]
+
     return routes
 
 
@@ -144,15 +149,13 @@ def cvrplib_random_insertion(
     demands: IntegerArray,
     capacity: int,
     order: Optional[IntegerArray] = None,
-    exploration=1.0
 ) -> List[UInt32Array]:
     customerpos = positions[1:]
     depotpos = positions[0]
     demands = demands[1:]
     if order is not None:
         order = np.delete(order, order == 0) - 1
-    routes = cvrp_random_insertion(
-        customerpos, depotpos, demands, capacity, order, exploration)
+    routes = cvrp_random_insertion(customerpos, depotpos, demands, capacity, order)
     for r in routes:
         r += 1
     return routes

@@ -4,21 +4,23 @@
 #include "head_cvrp.h"
 #include <Python.h>
 #include "numpy/arrayobject.h"
+#include <iostream>
 
 static PyObject*
 cvrp_insertion_random(PyObject *self, PyObject *args)
 {
     /* ----------------- read cities' position from PyObject ----------------- */
-    PyObject *pycities, *pyorder, *pydemands;
-    float depotx, depoty, exploration;
+    PyObject *pycities, *pyorder, *pydemands, *pyoutorder, *pyoutsep;
+    float depotx, depoty;
     unsigned capacity;
     // positions depotx depoty demands capacity order
-    if (!PyArg_ParseTuple(args, "OffOIOf", &pycities, &depotx, &depoty, &pydemands, &capacity, &pyorder, &exploration))
+    if (!PyArg_ParseTuple(args, "OffOIOOO", &pycities, &depotx, &depoty, &pydemands, &capacity, &pyorder, &pyoutorder, &pyoutsep))
         return NULL;
-    if (!PyArray_Check(pycities) || !PyArray_Check(pyorder) || !PyArray_Check(pydemands))
+    if (!PyArray_Check(pycities) || !PyArray_Check(pyorder) || !PyArray_Check(pydemands) ||!PyArray_Check(pyoutorder) || !PyArray_Check(pyoutsep))
         return NULL;
     
-    PyArrayObject *pyarrcities = (PyArrayObject *)pycities, *pyarrorder = (PyArrayObject *)pyorder, *pyarrdemands = (PyArrayObject *)pydemands;
+    PyArrayObject *pyarrcities = (PyArrayObject *)pycities, *pyarrorder = (PyArrayObject *)pyorder;
+    PyArrayObject *pyarrdemands = (PyArrayObject *)pydemands, *pyarroutorder = (PyArrayObject *)pyoutorder, *pyarroutsep = (PyArrayObject *)pyoutsep;
 
     #ifndef SKIPCHECK
     if (PyArray_NDIM(pyarrcities) != 2 || PyArray_TYPE(pyarrcities) != NPY_FLOAT32
@@ -29,23 +31,19 @@ cvrp_insertion_random(PyObject *self, PyObject *args)
 
     npy_intp *shape = PyArray_SHAPE(pyarrcities);
     unsigned citycount = (unsigned)shape[0];
+    unsigned maxroutecount = (unsigned)PyArray_SHAPE(pyarroutsep)[0];
     float *cities = (float *)PyArray_DATA(pyarrcities);
     unsigned *order = (unsigned *)PyArray_DATA(pyarrorder);
     unsigned *demands = (unsigned *)PyArray_DATA(pyarrdemands);
+    unsigned *outorder = (unsigned *)PyArray_DATA(pyarroutorder);
+    unsigned *outsep = (unsigned *)PyArray_DATA(pyarroutsep);
     float depotpos[2] = {depotx, depoty};
 
     /* ---------------------------- random insertion ---------------------------- */
-    CVRPInstance cvrpi = CVRPInstance(citycount, cities, demands, depotpos, capacity);
+    CVRPInstance cvrpi = CVRPInstance(citycount, cities, demands, depotpos, capacity, outorder, outsep, maxroutecount);
     CVRPInsertion ins = CVRPInsertion(&cvrpi);
 
-    CVRPReturn *result = ins.randomInsertion(order, exploration);
-    /* ----------------------- convert output to PyObject ----------------------- */
-    npy_intp dims = citycount, dims2 = result->routes;
-    PyObject *returntuple = PyTuple_Pack(2, 
-        PyArray_SimpleNewFromData(1, &dims, NPY_UINT32, result->order),
-        PyArray_SimpleNewFromData(1, &dims2, NPY_UINT32, result->routesep)
-    );
-
-    return returntuple;
+    ins.randomInsertion(order);
+    return Py_None;
 }
 #endif

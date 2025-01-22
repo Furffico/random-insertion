@@ -64,10 +64,8 @@ routes = ashpp_random_insertion_parallel(distances, orders, threads=0)
 # For backward compatibility with GLOP:
 route, cost = tsp_random_insertion(coords, order)
 route, cost = atsp_random_insertion(distances, order)
-
-# Not tested:
-route = cvrp_random_insertion(coords, depot_pos, demands, capacity, order, exploration = 1.0)
-route = cvrplib_random_insertion(coords, demands, capacity, order, exploration = 1.0)
+route = cvrp_random_insertion(coords, depot_pos, demands, capacity, order)
+route = cvrplib_random_insertion(coords, demands, capacity, order)
 ```
 
 ### Running tests
