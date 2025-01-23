@@ -1,100 +1,50 @@
 #include "head_tsp_shpp.h"
 
+float SHPPInsertion::solve(){
+    const unsigned cc = instance->citycount;
+    const unsigned lastcity = cc-1;
+    const unsigned *order = instance->order;
+    Node nodes[cc];
+    Node *head = &nodes[0], *tail=&nodes[lastcity];
+    head->next = tail, tail->next = nullptr;
+    head->value = 0, tail->value = lastcity;
+    tail->length = instance->getdist(head->value, tail->value);
 
-void SHPPInsertion::initState()
-{
-    unsigned* order = instance -> order;
-    unsigned cc = instance -> citycount;
-    Node dummynode, *lastnode = &dummynode;
+    for (unsigned i = 0; i < cc; ++i){
+        if(order[i]==0 || order[i]==lastcity)
+            continue;
 
-    unsigned subcc=cc-1;
-    Node *headnode = new Node(0);
-    Node *tailnode = (route=headnode)->next = new Node(subcc);
-    // The distance from node A to node B is stored in node B
-    tailnode->length = instance->getdist(headnode->value, tailnode->value);
+        Node &curr = nodes[i];
+        unsigned city = curr.value = order[i];
 
-    for (unsigned i = 0; i < cc; ++i)
-    {
-        unsigned index=order[i];
-        if(index!=0 && index != subcc)
-            lastnode = (lastnode->next = new Node(index));
-    }
-    vacant = dummynode.next;
-    dummynode.next = nullptr;
-}
-
-Node *SHPPInsertion::getVacantNode()
-{
-    Node *result = vacant;
-    if (vacant != nullptr)
-        vacant = vacant->next, result->next = nullptr;
-    return result;
-}
-
-void SHPPInsertion::randomInsertion()
-{
-    initState();
-
-    Node *curr, *next;
-    while ((curr=getVacantNode())!=nullptr){
-        unsigned city = curr->value;
-        // get target list and distances
-        // and get insert position with minimum cost
-        Node *thisnode, *nextnode=route, *minnode = route;
-        float thisdist, nextdist;
+        // determine the insert position with minimum cost
+        Node *thisnode = head, *nextnode = head->next, *minnode = head;
         float mindelta = INFINITY, td=0.0, nd=0.0;
-
-        while((nextnode=(thisnode=nextnode)->next)!=nullptr){
-            thisdist = instance->getdist(thisnode->value, city);
-            nextdist = instance->getdist(city, nextnode->value);
+        do{
+            float thisdist = instance->getdist(thisnode->value, city);
+            float nextdist = instance->getdist(city, nextnode->value);
             float delta = thisdist + nextdist - nextnode->length;
             if (delta < mindelta)
                 mindelta = delta, minnode = thisnode, td = thisdist, nd = nextdist;
-        }
+            thisnode = nextnode;
+            nextnode = nextnode->next;
+        }while(nextnode!=nullptr);
+
         // insert the selected node
-        next = minnode->next;
-        minnode->next = curr;
-        curr->next = next;
-        curr->length = td, next->length = nd;
+        curr.next = minnode->next;
+        minnode->next = &curr;
+        curr.length = td, curr.next->length = nd;
     }
-}
-
-
-float SHPPInsertion::getResult(unsigned* output){
-    if(output==nullptr || route == nullptr)
-        return -1.0;
-    unsigned cc = instance->citycount;
 
     // get node order
-    Node *node = route;
+    Node *node = head;
     float distance = 0.0;
-    for (unsigned i = 0; i < cc; i++)
+    for (unsigned i = 0; i < cc; ++i)
     {
-        output[i] = node->value;
+        instance->out[i] = node->value;
         distance += node->length;
         node = node->next;
     }
     return distance;
-}
-
-SHPPInsertion::~SHPPInsertion(){
-    if(route!=nullptr){
-        Node* last, *node = route;
-        while(node!=nullptr){
-            node = (last = node)->next;
-            delete last;
-        }
-        route = node = last = nullptr;
-    }
-    if(vacant!=nullptr){
-        Node* last, *node = vacant;
-        while(node!=nullptr){
-            node = (last = node)->next;
-            delete last;
-        }
-        vacant = nullptr;
-    }
-    if(instance!=nullptr)
-        delete instance;
 }
 

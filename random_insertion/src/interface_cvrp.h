@@ -40,10 +40,10 @@ cvrp_insertion_random(PyObject *self, PyObject *args)
     float depotpos[2] = {depotx, depoty};
 
     /* ---------------------------- random insertion ---------------------------- */
-    CVRPInstance cvrpi = CVRPInstance(citycount, cities, demands, depotpos, capacity, outorder, outsep, maxroutecount);
+    CVRPInstance cvrpi = CVRPInstance(citycount, cities, demands, depotpos, capacity, order, outorder, outsep, maxroutecount);
     CVRPInsertion ins = CVRPInsertion(&cvrpi);
 
-    ins.randomInsertion(order);
+    ins.solve();
     return Py_None;
 }
 #endif

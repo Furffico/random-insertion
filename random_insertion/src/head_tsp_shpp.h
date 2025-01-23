@@ -50,42 +50,28 @@ class TSPInsertion: public InsertionSolver
 {
 public:
     TSPInsertion(TSPinstance *tspinstance): tspi(tspinstance){};
-    virtual ~TSPInsertion();
-    float solve(){
-        randomInsertion(tspi->order);
-        float distance = getResult(tspi->out);
-        return distance;
-    }
+    ~TSPInsertion(){
+        if(tspi)
+            delete tspi;
+    };
+    float solve();
 
 private:
     TSPinstance *tspi;
-    Node *vacant = nullptr;
-    Node *route = nullptr;
-    Node *getVacantNode();
-    void initState(unsigned *order);
-    void randomInsertion(unsigned *order);
-    float getResult(unsigned* output);
 };
 
 class SHPPInsertion: public InsertionSolver
 {
 public:
     SHPPInsertion(TSPinstance *tspinstance): instance(tspinstance){};
-    virtual ~SHPPInsertion();
-    float solve(){
-        randomInsertion();
-        float distance = getResult(instance->out);
-        return distance;
-    }
+    ~SHPPInsertion(){
+        if(instance)
+            delete instance;
+    };
+    float solve();
 
 private:
     TSPinstance *instance;
-    Node *vacant = nullptr;
-    Node *route = nullptr;
-    Node *getVacantNode();
-    void initState();
-    void randomInsertion();
-    float getResult(unsigned* output);
 };
 
 #endif

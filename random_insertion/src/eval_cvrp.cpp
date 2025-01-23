@@ -1,83 +1,70 @@
 #include "head_cvrp.h"
 #include <Python.h>
 
-struct Route{
-	Node head;
-	unsigned demand;
-	float length;
-};
 
-
-void CVRPInsertion::randomInsertion(unsigned *order){
+float CVRPInsertion::solve(){
 	// initialize ==============================
-	const unsigned cc = cvrpi->citycount;
-	const unsigned max_routes = cvrpi->maxroutecount;
-	const unsigned capacity = cvrpi->capacity;
+	const unsigned &cc = cvrpi->citycount;
+	const unsigned &max_routes = cvrpi->maxroutecount;
+	const unsigned &capacity = cvrpi->capacity;
+	const unsigned *order = cvrpi->inorder;
 	unsigned total_routes = 0;
 	Node all_nodes[cc];
 	Route routes[max_routes];
 
 	// start loop ==================================
 	for(unsigned i=0; i<cc; ++i){
-		Node *curr = all_nodes+i;
-		unsigned currcity = curr->value = order[i];
-
-		float depotdist = cvrpi->getdistance(currcity, cc);
+		Node &curr = all_nodes[i];
+		const unsigned currcity = curr.value = order[i];
+		const unsigned currdemand = cvrpi->demand[currcity];
+		const float depotdist = cvrpi->getdistance(currcity, cc);
 		float mincost = 2.0 * depotdist;
-		unsigned currdemand = cvrpi->demand[currcity];
-		Route* minroute = nullptr;
-		Node* minnode = nullptr;
+		Route *minroute = nullptr;
+		Node *minnode = nullptr;
 		
 		// get insert posiion with minimum cost
 		for(unsigned j = 0; j<total_routes; ++j){
-			Route& route = routes[j];
+			Route &route = routes[j];
 			if(route.demand + currdemand > capacity)
 				continue;
-			Node *headnode = &(route.head);
-			Node *thisnode = headnode, *nextnode;
+			Node *headnode = &route, *thisnode = headnode, *nextnode;
 			float thisdist = depotdist, nextdist;
 			do{
 				nextnode = thisnode->next;
 				nextdist = cvrpi->getdistance(nextnode->value, currcity);
 				float delta = thisdist + nextdist - nextnode->length;
-				if(delta < mincost)
+				if(delta <= mincost)
 					mincost = delta, minnode = thisnode, minroute = &route;
 				thisnode = nextnode, thisdist = nextdist;
 			}while(nextnode!=headnode);
 		}
 
 		// update state
-		Route* route = nullptr;
-		Node* pre = nullptr;
 		if(minroute == nullptr){
-			Route &new_route = routes[total_routes++];
-			pre = new_route.head.next = &new_route.head;
-			new_route.head.value = cc;
-			new_route.head.length = 0;
-			new_route.length = 0.0;
-			new_route.demand = 0;
-			route = &new_route;
-			pre->next->length = curr->length = depotdist;
-
-			mincost = depotdist * 2.0;
+			Route &route = routes[total_routes++];
+			route.value = cc;
+			route.demand = currdemand;
+			route.route_length = depotdist * 2.0;
+			curr.length = route.length = depotdist;
+			route.next = &curr, curr.next = (Node*)&route;
 		}else{
-			pre = minnode, route = minroute;
-			curr->length = cvrpi->getdistance(pre->value, currcity);
-			pre->next->length = cvrpi->getdistance(currcity, pre->next->value);
+			Node *next = minnode->next;
+			curr.length = cvrpi->getdistance(minnode->value, currcity);
+			next->length = cvrpi->getdistance(currcity, next->value);
+			minnode->next = &curr, curr.next = next;
+			minroute->demand += currdemand;
+			minroute->route_length += mincost;
 		}
-		Node* next = pre->next;
-		pre->next = curr, curr->next = next;
-		route->demand += currdemand;
-		route->length += mincost;
 	}
 	
 	// get routes =========================
 	unsigned routecount = 0, accu = 0;
+	float total_length = 0.0;
 	for(unsigned j = 0; j<total_routes; ++j){
-		Route& route = routes[j];
-		Node* headnode = &(route.head);
-		Node* currnode = headnode->next;
+		Route &route = routes[j];
+		Node *headnode = (Node*)&route, *currnode = route.next;
 		cvrpi->outseq[routecount++] = accu;
+		total_length += route.route_length;
 		
 		while(currnode!=headnode){
 			cvrpi->outorder[accu++] = currnode->value;
@@ -86,7 +73,7 @@ void CVRPInsertion::randomInsertion(unsigned *order){
 	}
 	cvrpi->outseq[routecount++] = accu;
 
-	return;
+	return total_length;
 }
 
 
