@@ -16,7 +16,7 @@ static PyObject* shpp_insertion_random_parallel(PyObject *self, PyObject *args);
 static PyMethodDef InsertionMethods[] = {
     {"random", tsp_insertion_random, METH_VARARGS, "Execute random insertion on TSP."},
     {"random_parallel", tsp_insertion_random_parallel, METH_VARARGS, "Execute batched random insertion on TSP."},
-    {"cvrp_random", cvrp_insertion_random, METH_VARARGS, "Execute random insertion on CVRP."},
+    {"cvrp_random_parallel", cvrp_insertion_random_parallel, METH_VARARGS, "Execute batched random insertion on CVRP."},
     {"shpp_random_parallel", shpp_insertion_random_parallel, METH_VARARGS, "Execute batched random insertion on SHPP."},
     {NULL, NULL, 0, NULL}};
 

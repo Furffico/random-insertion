@@ -1,7 +1,37 @@
-#ifndef __RANDOM_INSERTION_CORE_TASKLIST
-#define __RANDOM_INSERTION_CORE_TASKLIST
 
+#ifndef __RANDOM_INSERTION_CORE_INTERFACE_COMMON
+#define __RANDOM_INSERTION_CORE_INTERFACE_COMMON
+
+#include <array>
+#include <Python.h>
+#include "numpy/arrayobject.h"
 #include "head_common.h"
+
+template <typename T, std::size_t dim, enum NPY_TYPES typecode>
+T* _check_and_convert(PyObject *pyobj, std::array<unsigned, dim> shape){
+    if (!PyArray_Check(pyobj))
+        return nullptr;
+    PyArrayObject *pyarrcities = (PyArrayObject *)pyobj;
+    #ifndef SKIPCHECK
+    if (PyArray_NDIM(pyarrcities)!= dim || PyArray_TYPE(pyarrcities)!= typecode)
+        return nullptr;
+    npy_intp *sh = PyArray_SHAPE(pyarrcities);
+    for (unsigned i = 0; i < dim; i++)
+        if (shape[i] != sh[i])
+            return nullptr;
+    #endif
+    return (T*)PyArray_DATA(pyarrcities);
+}
+
+template <std::size_t dim>
+float* check_and_convert_float(PyObject *pyobj, std::array<unsigned, dim> shape){
+    return _check_and_convert<float, dim, NPY_FLOAT32>(pyobj, shape);
+};
+
+template <std::size_t dim>
+unsigned* check_and_convert_unsigned(PyObject *pyobj, std::array<unsigned, dim> shape){
+    return _check_and_convert<unsigned, dim, NPY_UINT32>(pyobj, shape);
+};
 
 template<class Solver = InsertionSolver>
 class TaskList: public std::vector<Solver*>

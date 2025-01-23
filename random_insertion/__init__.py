@@ -101,6 +101,61 @@ def ashpp_random_insertion_parallel(
     _core.shpp_random_parallel(*args, threads, out)
     return out
 
+def cvrp_random_insertion_parallel(
+    customerpos: FloatPointArray,
+    depotpos: FloatPointArray,
+    demands: IntegerArray,
+    capacity: Union[IntegerArray, int],
+    order: Optional[IntegerArray] = None,
+    threads: int = 0
+) -> List[List[UInt32Array]]:
+    assert len(customerpos.shape) == 3 and customerpos.shape[2] == 2
+    batch_size, ccount, _ = customerpos.shape
+    assert depotpos.shape == (batch_size, 2)
+    assert demands.shape == (batch_size, ccount)
+    assert (demands.max() <= capacity).all() and demands.min() > 0
+    
+    if order is None:
+        # generate order
+        dp = (customerpos - depotpos.reshape(batch_size, 1, 2))
+        dx, dy = dp[..., 0], dp[..., 1]
+        phi = np.arctan2(dy, dx)
+        order = np.argsort(phi, axis=1).astype(np.uint32)
+    else:
+        assert order.shape == (batch_size, ccount) or order.shape == (ccount,)
+    
+    if not isinstance(capacity, int):
+        assert capacity.shape == (batch_size,)
+        _capacity = np.ascontiguousarray(capacity, dtype=np.uint32)
+    else:
+        _capacity = capacity
+
+    _order = np.ascontiguousarray(order, dtype=np.uint32)
+    _customerpos = np.ascontiguousarray(customerpos, dtype=np.float32)
+    _depotpos = np.ascontiguousarray(depotpos, dtype=np.float32)
+    _demands = np.ascontiguousarray(demands, dtype=np.uint32)
+    max_routes = min((demands.sum(axis=-1) // capacity).max() + 10, ccount)
+
+    outorder = np.ascontiguousarray(np.zeros((batch_size, ccount), dtype=np.uint32))
+    outsep = np.ascontiguousarray(np.zeros((batch_size, max_routes), dtype=np.uint32))
+
+    _core.cvrp_random_parallel(
+        _customerpos,
+        _depotpos,
+        _demands,
+        _capacity,
+        _order,
+        threads,
+        outorder,
+        outsep,
+    )
+    all_routes = []
+    for idx in range(batch_size):
+        routes = [outorder[idx, i:j] for i, j in zip(outsep[idx, :], outsep[idx, 1:]) if j>0]
+        all_routes.append(routes)
+
+    return all_routes
+
 def cvrp_random_insertion(
     customerpos: FloatPointArray,
     depotpos: FloatPointArray,
@@ -108,41 +163,14 @@ def cvrp_random_insertion(
     capacity: int,
     order: Optional[IntegerArray] = None,
 ) -> List[UInt32Array]:
-    assert len(customerpos.shape) == 2 and customerpos.shape[1] == 2
-    assert isinstance(capacity, int)
-
-    if isinstance(depotpos, tuple):
-        assert len(depotpos) == 2
-        depotx, depoty = depotpos
-    else:
-        assert len(depotpos.shape) == 1 and depotpos.shape[0] == 2
-        depotx, depoty = depotpos[0].item(), depotpos[1].item()
-    depotx, depoty = float(depotx), float(depoty)
-
-    ccount = customerpos.shape[0]
-    if order is None:
-        # generate order
-        dx, dy = (customerpos - np.array([[depotx, depoty]])).T
-        phi = np.arctan2(dy, dx)
-        order = np.argsort(phi).astype(np.uint32)
-    else:
-        assert len(order.shape) == 1 and order.shape[0] == ccount
-
-    assert demands.max() <= capacity and demands.min() > 0
-
-    _order = np.ascontiguousarray(order, dtype=np.uint32)
-    _customerpos = np.ascontiguousarray(customerpos, dtype=np.float32)
-    _demands = np.ascontiguousarray(demands, dtype=np.uint32)
-    max_routes = min(_demands.sum().item() // capacity + 10, ccount)
-
-    outorder = np.zeros(ccount, dtype=np.uint32)
-    outsep = np.zeros(max_routes, dtype=np.uint32)
-
-    _core.cvrp_random(_customerpos, depotx, depoty, _demands, capacity, _order, outorder, outsep)
-    routes = [outorder[i:j] for i, j in zip(outsep, outsep[1:]) if j>0]
-
-    return routes
-
+    return cvrp_random_insertion_parallel(
+        customerpos.reshape(1, *customerpos.shape),
+        depotpos.reshape(1, *depotpos.shape),
+        demands.reshape(1, *demands.shape),
+        capacity,
+        order.reshape(1, *order.shape) if order is not None else None,
+        threads=0,
+    )[0]
 
 def cvrplib_random_insertion(
     positions: FloatPointArray,
