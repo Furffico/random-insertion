@@ -60,6 +60,7 @@ routes = tsp_random_insertion_parallel(coords, orders, threads=0)
 routes = shpp_random_insertion_parallel(coords, orders, threads=0)
 routes = atsp_random_insertion_parallel(distances, orders, threads=0)
 routes = ashpp_random_insertion_parallel(distances, orders, threads=0)
+routes = cvrp_random_insertion_parallel(coords, depot_coords, demands, capacity, order, threads=0)
 
 # For backward compatibility with GLOP:
 route, cost = tsp_random_insertion(coords, order)
