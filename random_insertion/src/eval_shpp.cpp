@@ -5,7 +5,7 @@ float SHPPInsertion::solve(){
     const unsigned lastcity = cc-1;
     const unsigned *order = instance->order;
     unsigned curr_node_index = 0;
-    Node nodes[cc] = {};
+    std::vector<Node> nodes(cc);
     Node *head = &nodes[0], *tail=&nodes[lastcity];
     head->next = tail, tail->next = nullptr;
     head->value = 0, tail->value = lastcity;

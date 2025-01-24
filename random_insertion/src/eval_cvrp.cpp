@@ -9,8 +9,8 @@ float CVRPInsertion::solve(){
 	const unsigned capacity = cvrpi->capacity;
 	const unsigned *order = cvrpi->inorder;
 	unsigned total_routes = 0;
-	Node all_nodes[cc];
-	Route routes[max_routes];
+	std::vector<Node> all_nodes(cc);
+	std::vector<Route> routes(max_routes);
 
 	// start loop ==================================
 	for(unsigned i=0; i<cc; ++i){

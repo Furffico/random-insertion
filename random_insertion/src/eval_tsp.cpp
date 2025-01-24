@@ -5,7 +5,7 @@ float TSPInsertion::solve(){
     // initialize nodes
     const unsigned cc = tspi->citycount;
     const unsigned *order = tspi->order;
-    Node nodes[cc];
+    std::vector<Node> nodes(cc);
     
     // generate initial route with 2 nodes
     {
@@ -22,7 +22,7 @@ float TSPInsertion::solve(){
 
         // get target list and distances
         // and get insert position with minimum cost
-        Node *thisnode = nodes, *nextnode = thisnode->next, *minnode = thisnode;
+        Node *thisnode = &nodes[0], *nextnode = thisnode->next, *minnode = thisnode;
         float mindelta = INFINITY, td = 0.0, nd = 0.0;
 
         for (unsigned j = 0; j < i; ++j){
@@ -45,7 +45,7 @@ float TSPInsertion::solve(){
     }
 
     // get node order
-    Node *node = nodes;
+    Node *node = &nodes[0];
     float distance = 0.0;
     for (unsigned i = 0; i < cc; ++i)
     {
