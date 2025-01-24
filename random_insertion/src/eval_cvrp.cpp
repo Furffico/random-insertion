@@ -4,9 +4,9 @@
 
 float CVRPInsertion::solve(){
 	// initialize ==============================
-	const unsigned &cc = cvrpi->citycount;
-	const unsigned &max_routes = cvrpi->maxroutecount;
-	const unsigned &capacity = cvrpi->capacity;
+	const unsigned cc = cvrpi->citycount;
+	const unsigned max_routes = cvrpi->maxroutecount;
+	const unsigned capacity = cvrpi->capacity;
 	const unsigned *order = cvrpi->inorder;
 	unsigned total_routes = 0;
 	Node all_nodes[cc];
