@@ -1,7 +1,7 @@
 
 [project]
 name = "random-insertion"
-version = "0.3.0"
+version = "0.3.0.post1"
 description = "A library for performing fast random insertion on TSP and SHPP instances"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.7"
@@ -30,7 +30,7 @@ include-package-data = false
 packages = ["random_insertion"]
 
 [tool.cibuildwheel]
-build = "cp3{7,8,10,12,13}-{manylinux_x86_64,win_amd64}"
+build = "cp3{7,8,9,10,11,12,13}-{manylinux_x86_64,win_amd64}"
 skip = "cp36-*"
 
 test-requires = ["pytest"]
